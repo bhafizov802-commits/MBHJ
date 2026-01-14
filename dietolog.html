@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#10b981">
+    
+    <title>МиляБулатХватитЖрать</title>
+    
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2424/2424434.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2424/2424434.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@900&family=Manrope:wght@400;600;800&display=swap');
+        
+        :root { --accent: #10b981; }
+        body { font-family: 'Manrope', sans-serif; background: #f8fafc; color: #1e293b; -webkit-tap-highlight-color: transparent; }
+        .logo-font { font-family: 'Unbounded', cursive; }
+        
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .btn-active-b { background: #1e293b !important; color: white !important; transform: scale(1.05); }
+        .btn-active-m { background: #ec4899 !important; color: white !important; transform: scale(1.05); }
+        
+        .day-active { background: var(--accent) !important; color: white !important; border-color: var(--accent); }
+        
+        .checkbox-custom:checked + label { background: #ecfdf5; border-color: #10b981; }
+        .checkbox-custom:checked + label .item-text { text-decoration: line-through; opacity: 0.5; }
+        .checkbox-custom:checked + label .check-mark { background: #10b981; border-color: #10b981; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Анимация перехода */
+        .page { display: none; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="pb-32">
+
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-100 px-6 py-5">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="logo-font text-[10px] text-emerald-500 leading-none mb-1">APP VERSION 2.0</h1>
+                <h2 class="logo-font text-base font-black text-slate-900 tracking-tighter italic">МИЛЯБУЛАТ<span class="text-emerald-500">ХЖ</span></h2>
+            </div>
+            <div class="flex bg-slate-100 p-1 rounded-2xl shadow-inner">
+                <button id="u-b" onclick="setUser('b')" class="px-5 py-2 rounded-xl text-[10px] font-extrabold transition-all btn-active-b">БУЛАТ</button>
+                <button id="u-m" onclick="setUser('m')" class="px-5 py-2 rounded-xl text-[10px] font-extrabold transition-all text-slate-400">МИЛЯ</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto px-4 mt-6">
+        
+        <section class="card p-7 mb-6 text-center border-b-8 border-emerald-500 transition-all duration-500">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mb-2">Дневная цель</p>
+            <div id="val-kcal" class="text-6xl font-black text-slate-900 tracking-tighter mb-6">2850</div>
+            <div class="grid grid-cols-3 gap-4 border-t border-slate-50 pt-6">
+                <div><span id="val-p" class="block text-lg font-black text-slate-800">195г</span><span class="text-[9px] font-bold text-slate-400 uppercase">Белок</span></div>
+                <div><span id="val-j" class="block text-lg font-black text-slate-800">85г</span><span class="text-[9px] font-bold text-slate-400 uppercase">Жиры</span></div>
+                <div><span id="val-u" class="block text-lg font-black text-slate-800">310г</span><span class="text-[9px] font-bold text-slate-400 uppercase">Углеводы</span></div>
+            </div>
+        </section>
+
+        <div id="view-diet" class="page active">
+            <div class="flex gap-2 overflow-x-auto no-scrollbar pb-6">
+                <script>
+                    const days = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+                    days.forEach((d, i) => {
+                        document.write(`<button onclick="setDay(${i+1})" id="day-${i+1}" class="day-btn flex-shrink-0 w-14 h-14 rounded-2xl bg-white border border-slate-100 flex flex-col items-center justify-center shadow-sm transition-all ${i===0?'day-active':''}"><span class="text-[9px] font-bold uppercase opacity-60">${d}</span><span class="text-xs font-black">0${i+1}</span></button>`);
+                    });
+                </script>
+            </div>
+            <div id="meal-container" class="space-y-4"></div>
+        </div>
+
+        <div id="view-shop" class="page">
+            <div class="card p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="logo-font text-sm font-black italic">ЗАКУПКА МЕСЯЦ</h3>
+                    <button onclick="resetShop()" class="text-[10px] font-bold text-red-500 uppercase tracking-tighter">Очистить</button>
+                </div>
+                <div id="shop-container" class="space-y-3"></div>
+                <div class="mt-8 p-5 bg-slate-900 rounded-[2rem] text-center">
+                    <span class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Бюджет (ориентир)</span>
+                    <p class="text-white text-2xl font-black mt-1">~16 200 ₽</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-xs bg-slate-900/95 backdrop-blur-xl rounded-[2.5rem] p-2 flex justify-between items-center shadow-2xl z-50">
+        <button onclick="switchTab('diet')" id="nav-diet" class="flex-1 py-4 text-white text-[10px] font-black tracking-[0.2em] bg-emerald-500 rounded-[2rem] transition-all">РАЦИОН</button>
+        <button onclick="switchTab('shop')" id="nav-shop" class="flex-1 py-4 text-slate-400 text-[10px] font-black tracking-[0.2em] transition-all">СПИСОК</button>
+    </nav>
+
+    <script>
+        // ИМИТАЦИЯ API (Data Structure)
+        const DATABASE = {
+            users: {
+                b: { kcal: 2850, p: 195, j: 85, u: 310 },
+                m: { kcal: 1420, p: 98, j: 52, u: 145 }
+            },
+            menu: {
+                1: [["Завтрак", "🥣", "Овсянка 120г + 4 яйца", "Овсянка 45г + 2 яйца"], ["Обед", "🍗", "Курица 280г + Рис 250г", "Курица 120г + Рис 100г"], ["Полдник", "🍏", "Творог 250г + Яблоко", "Творог 120г + Яблоко"], ["Ужин", "🍗", "Курица 250г + Пюре 300г", "Курица 120г + Пюре 150г"]],
+                2: [["Завтрак", "🍳", "Омлет (5 яиц)", "Омлет (2 яйца)"], ["Обед", "🍗", "Курица 280г + Гречка 250г", "Курица 120г + Гречка 100г"], ["Полдник", "🥛", "Йогурт 250г", "Йогурт 120г"], ["Ужин", "🐟", "Минтай 250г + Овощи", "Минтай 120г + Овощи"]],
+                3: [["Завтрак", "🥣", "Рис каша + 4 яйца", "Рис каша + 2 яйца"], ["Обед", "🍗", "Индейка 250г + Рис 250г", "Индейка 120г + Рис 100г"], ["Полдник", "🍐", "Творог 250г", "Творог 120г"], ["Ужин", "🍗", "Курица 250г + Кабачок", "Курица 120г + Кабачок"]],
+                4: [["Завтрак", "🥣", "Овсянка 120г + 4 яйца", "Овсянка 45г + 2 яйца"], ["Обед", "🍗", "Курица 280г + Пюре 250г", "Курица 120г + Пюре 100г"], ["Полдник", "🍎", "Творог + Яблоко", "Творог + Яблоко"], ["Ужин", "🐟", "Хек 250г + Рис 250г", "Хек 120г + Рис 100г"]],
+                5: [["Завтрак", "🥚", "5 яиц + Манка", "2 яйца + Манка"], ["Обед", "🍗", "Курица 300г + Гречка 250г", "Курица 130г + Гречка 100г"], ["Полдник", "🍚", "Творог мягкий 250г", "Творог мягкий 120г"], ["Ужин", "🍗", "Курица 250г + Морковь", "Курица 120г + Морковь"]],
+                6: [["Завтрак", "🥚", "4 яйца + Хлеб", "2 яйца + Хлеб"], ["Обед", "🐟", "Минтай 300г + Рис 250г", "Минтай 150г + Рис 100г"], ["Полдник", "🍦", "Йогурт + Банан", "Йогурт + Банан"], ["Ужин", "🍗", "Курица 280г + Картофель", "Курица 130г + Картофель"]],
+                7: [["Завтрак", "🍳", "Омлет + Овес", "Омлет + Овес"], ["Обед", "🍗", "Курица 300г + Рис 250г", "Курица 130г + Рис 100г"], ["Полдник", "🧁", "Запеканка 250г", "Запеканка 120г"], ["Ужин", "🍗", "Индейка 250г + Кабачок", "Индейка 130г + Кабачок"]]
+            },
+            shop: [
+                {id: 'p1', n: 'Куриная грудка (филе)', q: '15 кг'},
+                {id: 'p2', n: 'Минтай / Хек (филе)', q: '6 кг'},
+                {id: 'p3', n: 'Яйца куриные', q: '180 шт'},
+                {id: 'p4', n: 'Творог 5%', q: '8 кг'},
+                {id: 'p5', n: 'Крупы (Рис/Гречка/Овес)', q: '11 кг'},
+                {id: 'p6', n: 'Овощи (Картошка/Кабачок)', q: '20 кг'},
+                {id: 'p7', n: 'Фрукты (Яблоки/Груши)', q: '6 кг'}
+            ]
+        };
+
+        let currentU = 'b';
+        let currentD = 1;
+
+        function setUser(u) {
+            currentU = u;
+            document.getElementById('u-b').className = `px-5 py-2 rounded-xl text-[10px] font-extrabold transition-all ${u==='b'?'btn-active-b':'text-slate-400'}`;
+            document.getElementById('u-m').className = `px-5 py-2 rounded-xl text-[10px] font-extrabold transition-all ${u==='m'?'btn-active-m':'text-slate-400'}`;
+            render();
+        }
+
+        function setDay(d) {
+            currentD = d;
+            document.querySelectorAll('.day-btn').forEach((btn, i) => btn.classList.toggle('day-active', i+1 === d));
+            render();
+        }
+
+        function switchTab(t) {
+            document.getElementById('view-diet').classList.toggle('active', t === 'diet');
+            document.getElementById('view-shop').classList.toggle('active', t === 'shop');
+            document.getElementById('nav-diet').className = `flex-1 py-4 text-[10px] font-black tracking-[0.2em] transition-all ${t==='diet'?'bg-emerald-500 text-white rounded-[2rem] shadow-lg':'text-slate-400'}`;
+            document.getElementById('nav-shop').className = `flex-1 py-4 text-[10px] font-black tracking-[0.2em] transition-all ${t==='shop'?'bg-emerald-500 text-white rounded-[2rem] shadow-lg':'text-slate-400'}`;
+        }
+
+        function resetShop() {
+            if(confirm('Очистить список купленного на этот месяц?')) {
+                DATABASE.shop.forEach(i => localStorage.removeItem('bought_'+i.id));
+                render();
+            }
+        }
+
+        function render() {
+            const uData = DATABASE.users[currentU];
+            document.getElementById('val-kcal').innerText = uData.kcal;
+            document.getElementById('val-p').innerText = uData.p + 'г';
+            document.getElementById('val-j').innerText = uData.j + 'г';
+            document.getElementById('val-u').innerText = uData.u + 'г';
+
+            // Meals
+            const meals = DATABASE.menu[currentD];
+            document.getElementById('meal-container').innerHTML = meals.map(m => `
+                <div class="card p-5 flex justify-between items-center transition-transform active:scale-95">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-2xl shadow-inner">${m[1]}</div>
+                        <div>
+                            <p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-0.5">${m[0]}</p>
+                            <p class="text-[13px] font-extrabold text-slate-800 leading-tight">${currentU==='b'?m[2]:m[3]}</p>
+                        </div>
+                    </div>
+                </div>`).join('');
+
+            // Shop
+            document.getElementById('shop-container').innerHTML = DATABASE.shop.map(i => `
+                <div class="relative">
+                    <input type="checkbox" id="${i.id}" class="checkbox-custom hidden" onchange="localStorage.setItem('bought_'+'${i.id}', this.checked)" ${localStorage.getItem('bought_'+i.id)==='true'?'checked':''}>
+                    <label for="${i.id}" class="flex items-center gap-4 p-5 rounded-[1.5rem] border border-slate-100 bg-slate-50/50 cursor-pointer transition-all">
+                        <div class="check-mark w-6 h-6 rounded-full border-2 border-slate-200 bg-white flex items-center justify-center transition-all italic text-[10px] text-white font-black">✓</div>
+                        <div class="flex-1 flex justify-between items-center">
+                            <span class="item-text text-xs font-bold text-slate-700 uppercase tracking-tight">${i.n}</span>
+                            <span class="text-[10px] font-black text-slate-300">${i.q}</span>
+                        </div>
+                    </label>
+                </div>`).join('');
+        }
+
+        render();
+    </script>
+</body>
+</html>
